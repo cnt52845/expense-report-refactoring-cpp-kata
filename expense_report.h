@@ -114,32 +114,49 @@ private:
 
     void print_expenses_and_totals()
     {
+        print_header();
+        print_expenses();
+        print_totals();
+    }
+
+    void print_header()
+    {
         printer->print("Expense Report");
         printer->print("--------------");
+    }
 
+    void print_expenses()
+    {
         for (const std::shared_ptr<Expense>& expense : report->get_expenses()) {
-            std::string meal_over_expenses_marker = "";
-
-            if (expense->is_meal()) {
-                if (expense->is_overage()) {
-                    meal_over_expenses_marker = "X";
-                }
-            }
-
-            std::ostringstream oss;
-            oss << std::fixed << std::setprecision(2) << namer->get_name(expense) << "\t"
-                << expense->get_amount() / 100.0 << "\t" << meal_over_expenses_marker;
-            printer->print(oss.str());
+            print_expense(expense);
         }
+    }
 
-        printer->print("--------------");
+    void print_expense(const std::shared_ptr<Expense>& expense)
+    {
         std::ostringstream oss;
-        oss << "Meal Total: " << std::fixed << std::setprecision(2)
-            << report->get_meal_expenses_total() / 100.0 << "\n";
-        oss << "Total: " << std::fixed << std::setprecision(2)
-            << report->get_expenses_total() / 100.0;
+        oss << namer->get_name(expense) << "\t" << print_amount(expense->get_amount()) << "\t"
+            << (expense->is_overage() ? "X" : "");
         printer->print(oss.str());
     }
+
+    void print_totals()
+    {
+        printer->print("--------------");
+        std::ostringstream oss;
+        oss << "Meal Total: " << print_amount(report->get_meal_expenses_total()) << "\n";
+        oss << "Total: " << print_amount(report->get_expenses_total());
+        printer->print(oss.str());
+    }
+
+    std::string print_amount(double amount_in_pennies)
+    {
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(2) << pennies_to_dollars(amount_in_pennies);
+        return oss.str();
+    }
+
+    double pennies_to_dollars(double pennies) { return pennies / 100.0; }
 
 public:
     ExpenseReporter(std::shared_ptr<ExpenseReport>& report) : report(report) {}
