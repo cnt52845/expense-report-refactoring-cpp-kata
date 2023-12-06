@@ -42,7 +42,7 @@ TEST_F(ExpenseReportTest, print_empty)
 
 TEST_F(ExpenseReportTest, print_one_dinner)
 {
-    report->add_expense(DinnerExpense(3000));
+    report->add_expense(std::make_shared<DinnerExpense>(3000));
     report->print_report(*printer);
 
     std::string expected_output = "Expense Report\n"
@@ -56,8 +56,8 @@ TEST_F(ExpenseReportTest, print_one_dinner)
 
 TEST_F(ExpenseReportTest, print_two_meals_and_dinner_over)
 {
-    report->add_expense(DinnerExpense(6000));
-    report->add_expense(BreakfastExpense(1000));
+    report->add_expense(std::make_shared<DinnerExpense>(6000));
+    report->add_expense(std::make_shared<BreakfastExpense>(1000));
     report->print_report(*printer);
 
     std::string expected_output = "Expense Report\n"
@@ -72,9 +72,9 @@ TEST_F(ExpenseReportTest, print_two_meals_and_dinner_over)
 
 TEST_F(ExpenseReportTest, print_mix_and_dinner_over)
 {
-    report->add_expense(DinnerExpense(5000));
-    report->add_expense(BreakfastExpense(2000));
-    report->add_expense(LodgingExpense(3000));
+    report->add_expense(std::make_shared<DinnerExpense>(5000));
+    report->add_expense(std::make_shared<BreakfastExpense>(2000));
+    report->add_expense(std::make_shared<LodgingExpense>(3000));
     report->print_report(*printer);
 
     std::string expected_output = "Expense Report\n"
