@@ -14,9 +14,12 @@ enum ExpenseType { DINNER, BREAKFAST, LODGING };
 class Expense {
 public:
     Expense(ExpenseType type, int amount) : type(type), amount(amount) {}
+    int get_amount() const { return amount; }
 
     ExpenseType type;
-    int         amount;
+
+protected:
+    int amount;
 };
 
 class DinnerExpense : public Expense {
@@ -53,35 +56,35 @@ public:
             std::string name;
 
             if (expense.type == DINNER) {
-                surcharge = expense.amount * 0.10;
+                surcharge = expense.get_amount() * 0.10;
                 name      = "Dinner";
             }
             else if (expense.type == BREAKFAST) {
-                surcharge = expense.amount * 0.05;
+                surcharge = expense.get_amount() * 0.05;
                 name      = "Breakfast";
             }
             else if (expense.type == LODGING) {
-                surcharge = expense.amount * 0.15;
+                surcharge = expense.get_amount() * 0.15;
                 name      = "Lodging";
             }
             else {
                 name = "Other";
             }
 
-            total += expense.amount + surcharge;
+            total += expense.get_amount() + surcharge;
             if (expense.type == DINNER || expense.type == BREAKFAST) {
-                meal_total += expense.amount + surcharge;
+                meal_total += expense.get_amount() + surcharge;
             }
 
             std::string meal_over_expenses_marker =
-                ((expense.type == DINNER && expense.amount > 5000) ||
-                 (expense.type == BREAKFAST && expense.amount > 1000))
+                ((expense.type == DINNER && expense.get_amount() > 5000) ||
+                 (expense.type == BREAKFAST && expense.get_amount() > 1000))
                     ? "X"
                     : "";
 
             std::ostringstream oss;
-            oss << std::fixed << std::setprecision(2) << name << "\t" << expense.amount / 100.0
-                << "\t" << meal_over_expenses_marker;
+            oss << std::fixed << std::setprecision(2) << name << "\t"
+                << expense.get_amount() / 100.0 << "\t" << meal_over_expenses_marker;
             printer.print(oss.str());
         }
 
