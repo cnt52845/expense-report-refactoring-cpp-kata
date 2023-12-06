@@ -9,42 +9,38 @@ public:
     virtual void print(const std::string& text) = 0;
 };
 
-enum ExpenseType { DINNER, BREAKFAST, LODGING };
-
 class Expense {
 public:
-    Expense(ExpenseType type, int amount) : type(type), amount(amount) {}
+    Expense(int amount) : amount(amount) {}
     int            get_amount() const { return amount; }
     virtual double get_surcharge() = 0;
     virtual bool   is_meal()       = 0;
     virtual bool   is_overage()    = 0;
 
-    ExpenseType type;
-
-protected:
+private:
     int amount;
 };
 
 class DinnerExpense : public Expense {
 public:
-    DinnerExpense(int amount) : Expense(DINNER, amount) {}
-    double get_surcharge() override { return amount * 0.10; }
+    DinnerExpense(int amount) : Expense(amount) {}
+    double get_surcharge() override { return get_amount() * 0.10; }
     bool   is_meal() override { return true; }
     bool   is_overage() override { return get_amount() > 5000; }
 };
 
 class BreakfastExpense : public Expense {
 public:
-    BreakfastExpense(int amount) : Expense(BREAKFAST, amount) {}
-    double get_surcharge() override { return amount * 0.05; }
+    BreakfastExpense(int amount) : Expense(amount) {}
+    double get_surcharge() override { return get_amount() * 0.05; }
     bool   is_meal() override { return true; }
     bool   is_overage() override { return get_amount() > 1000; }
 };
 
 class LodgingExpense : public Expense {
 public:
-    LodgingExpense(int amount) : Expense(LODGING, amount) {}
-    double get_surcharge() override { return amount * 0.15; }
+    LodgingExpense(int amount) : Expense(amount) {}
+    double get_surcharge() override { return get_amount() * 0.15; }
     bool   is_meal() override { return false; }
     bool   is_overage() override { return false; }
 };
