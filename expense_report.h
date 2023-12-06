@@ -16,6 +16,7 @@ public:
     Expense(ExpenseType type, int amount) : type(type), amount(amount) {}
     int            get_amount() const { return amount; }
     virtual double get_surcharge() = 0;
+    virtual bool   is_meal()       = 0;
 
     ExpenseType type;
 
@@ -27,18 +28,21 @@ class DinnerExpense : public Expense {
 public:
     DinnerExpense(int amount) : Expense(DINNER, amount) {}
     double get_surcharge() override { return amount * 0.10; }
+    bool   is_meal() override { return true; }
 };
 
 class BreakfastExpense : public Expense {
 public:
     BreakfastExpense(int amount) : Expense(BREAKFAST, amount) {}
     double get_surcharge() override { return amount * 0.05; }
+    bool   is_meal() override { return true; }
 };
 
 class LodgingExpense : public Expense {
 public:
     LodgingExpense(int amount) : Expense(LODGING, amount) {}
     double get_surcharge() override { return amount * 0.15; }
+    bool   is_meal() override { return false; }
 };
 
 template <typename T>
@@ -89,7 +93,7 @@ public:
             std::string name      = namer->get_name(expense);
 
             total += expense->get_amount() + surcharge;
-            if (expense->type == DINNER || expense->type == BREAKFAST) {
+            if (expense->is_meal()) {
                 meal_total += expense->get_amount() + surcharge;
             }
 
