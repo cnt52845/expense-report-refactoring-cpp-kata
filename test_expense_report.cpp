@@ -1,3 +1,4 @@
+#include <memory>
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -20,17 +21,19 @@ class ExpenseReportTest : public ::testing::Test {
 protected:
     void SetUp() override
     {
-        report  = std::make_unique<ExpenseReport>();
-        printer = std::make_unique<MockReportPrinter>();
+        report   = std::make_shared<ExpenseReport>();
+        reporter = std::make_shared<ExpenseReporter>(report);
+        printer  = std::make_shared<MockReportPrinter>();
     }
 
-    std::unique_ptr<ExpenseReport>     report;
-    std::unique_ptr<MockReportPrinter> printer;
+    std::shared_ptr<ExpenseReport>     report;
+    std::shared_ptr<ExpenseReporter>   reporter;
+    std::shared_ptr<MockReportPrinter> printer;
 };
 
 TEST_F(ExpenseReportTest, print_empty)
 {
-    report->print_report(*printer);
+    reporter->print_report(*printer);
 
     std::string expected_output = "Expense Report\n"
                                   "--------------\n"
@@ -43,7 +46,7 @@ TEST_F(ExpenseReportTest, print_empty)
 TEST_F(ExpenseReportTest, print_one_dinner)
 {
     report->add_expense(std::make_shared<DinnerExpense>(3000));
-    report->print_report(*printer);
+    reporter->print_report(*printer);
 
     std::string expected_output = "Expense Report\n"
                                   "--------------\n"
@@ -58,7 +61,7 @@ TEST_F(ExpenseReportTest, print_two_meals_and_dinner_over)
 {
     report->add_expense(std::make_shared<DinnerExpense>(6000));
     report->add_expense(std::make_shared<BreakfastExpense>(1000));
-    report->print_report(*printer);
+    reporter->print_report(*printer);
 
     std::string expected_output = "Expense Report\n"
                                   "--------------\n"
@@ -75,7 +78,7 @@ TEST_F(ExpenseReportTest, print_mix_and_dinner_over)
     report->add_expense(std::make_shared<DinnerExpense>(5000));
     report->add_expense(std::make_shared<BreakfastExpense>(2000));
     report->add_expense(std::make_shared<LodgingExpense>(3000));
-    report->print_report(*printer);
+    reporter->print_report(*printer);
 
     std::string expected_output = "Expense Report\n"
                                   "--------------\n"

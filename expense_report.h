@@ -1,5 +1,6 @@
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <vector>
 #include <string>
@@ -113,4 +114,13 @@ public:
         oss << "Total: " << std::fixed << std::setprecision(2) << total / 100.0;
         printer.print(oss.str());
     }
+};
+
+class ExpenseReporter {
+private:
+    const std::shared_ptr<ExpenseReport> report;
+
+public:
+    ExpenseReporter(std::shared_ptr<ExpenseReport>& report) : report(report) {}
+    void print_report(ReportPrinter& printer) { report->print_report(printer); }
 };
