@@ -14,7 +14,8 @@ enum ExpenseType { DINNER, BREAKFAST, LODGING };
 class Expense {
 public:
     Expense(ExpenseType type, int amount) : type(type), amount(amount) {}
-    int get_amount() const { return amount; }
+    int            get_amount() const { return amount; }
+    virtual double get_surcharge() = 0;
 
     ExpenseType type;
 
@@ -25,16 +26,19 @@ protected:
 class DinnerExpense : public Expense {
 public:
     DinnerExpense(int amount) : Expense(DINNER, amount) {}
+    double get_surcharge() override { return amount * 0.10; }
 };
 
 class BreakfastExpense : public Expense {
 public:
     BreakfastExpense(int amount) : Expense(BREAKFAST, amount) {}
+    double get_surcharge() override { return amount * 0.05; }
 };
 
 class LodgingExpense : public Expense {
 public:
     LodgingExpense(int amount) : Expense(LODGING, amount) {}
+    double get_surcharge() override { return amount * 0.15; }
 };
 
 class ExpenseReport {
@@ -56,15 +60,15 @@ public:
             std::string name;
 
             if (expense->type == DINNER) {
-                surcharge = expense->get_amount() * 0.10;
+                surcharge = expense->get_surcharge();
                 name      = "Dinner";
             }
             else if (expense->type == BREAKFAST) {
-                surcharge = expense->get_amount() * 0.05;
+                surcharge = expense->get_surcharge();
                 name      = "Breakfast";
             }
             else if (expense->type == LODGING) {
-                surcharge = expense->get_amount() * 0.15;
+                surcharge = expense->get_surcharge();
                 name      = "Lodging";
             }
             else {
