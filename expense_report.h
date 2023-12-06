@@ -41,9 +41,38 @@ public:
     double get_surcharge() override { return amount * 0.15; }
 };
 
+template <typename T>
+inline bool
+is_instance_of(const std::shared_ptr<Expense>& ptr)
+{
+    return std::dynamic_pointer_cast<T>(ptr) != nullptr;
+}
+
+class ExpenseNamer {
+public:
+    virtual std::string get_name(const std::shared_ptr<Expense>& expense) = 0;
+};
+
+class ExpenseReportNamer : public ExpenseNamer {
+    std::string get_name(const std::shared_ptr<Expense>& expense) override
+    {
+        if (is_instance_of<DinnerExpense>(expense)) {
+            return "Dinner";
+        }
+        if (is_instance_of<BreakfastExpense>(expense)) {
+            return "Breakfast";
+        }
+        if (is_instance_of<LodgingExpense>(expense)) {
+            return "Lodging";
+        }
+        return "Other";
+    }
+};
+
 class ExpenseReport {
 private:
     std::vector<std::shared_ptr<Expense>> expenses;
+    std::shared_ptr<ExpenseNamer>         namer = std::make_shared<ExpenseReportNamer>();
 
 public:
     void add_expense(const std::shared_ptr<Expense>& expense) { expenses.push_back(expense); }
@@ -56,24 +85,8 @@ public:
         double total      = 0;
         double meal_total = 0;
         for (const std::shared_ptr<Expense>& expense : expenses) {
-            double      surcharge = 0;
-            std::string name;
-
-            if (expense->type == DINNER) {
-                surcharge = expense->get_surcharge();
-                name      = "Dinner";
-            }
-            else if (expense->type == BREAKFAST) {
-                surcharge = expense->get_surcharge();
-                name      = "Breakfast";
-            }
-            else if (expense->type == LODGING) {
-                surcharge = expense->get_surcharge();
-                name      = "Lodging";
-            }
-            else {
-                name = "Other";
-            }
+            double      surcharge = expense->get_surcharge();
+            std::string name      = namer->get_name(expense);
 
             total += expense->get_amount() + surcharge;
             if (expense->type == DINNER || expense->type == BREAKFAST) {
