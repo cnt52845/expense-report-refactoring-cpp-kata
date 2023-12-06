@@ -17,6 +17,7 @@ public:
     int            get_amount() const { return amount; }
     virtual double get_surcharge() = 0;
     virtual bool   is_meal()       = 0;
+    virtual bool   is_overage()    = 0;
 
     ExpenseType type;
 
@@ -29,6 +30,7 @@ public:
     DinnerExpense(int amount) : Expense(DINNER, amount) {}
     double get_surcharge() override { return amount * 0.10; }
     bool   is_meal() override { return true; }
+    bool   is_overage() override { return get_amount() > 5000; }
 };
 
 class BreakfastExpense : public Expense {
@@ -36,6 +38,7 @@ public:
     BreakfastExpense(int amount) : Expense(BREAKFAST, amount) {}
     double get_surcharge() override { return amount * 0.05; }
     bool   is_meal() override { return true; }
+    bool   is_overage() override { return get_amount() > 1000; }
 };
 
 class LodgingExpense : public Expense {
@@ -43,6 +46,7 @@ public:
     LodgingExpense(int amount) : Expense(LODGING, amount) {}
     double get_surcharge() override { return amount * 0.15; }
     bool   is_meal() override { return false; }
+    bool   is_overage() override { return false; }
 };
 
 template <typename T>
@@ -89,19 +93,17 @@ public:
         double total      = 0;
         double meal_total = 0;
         for (const std::shared_ptr<Expense>& expense : expenses) {
-            double      surcharge = expense->get_surcharge();
-            std::string name      = namer->get_name(expense);
+            double      surcharge                 = expense->get_surcharge();
+            std::string name                      = namer->get_name(expense);
+            std::string meal_over_expenses_marker = "";
 
             total += expense->get_amount() + surcharge;
             if (expense->is_meal()) {
                 meal_total += expense->get_amount() + surcharge;
+                if (expense->is_overage()) {
+                    meal_over_expenses_marker = "X";
+                }
             }
-
-            std::string meal_over_expenses_marker =
-                ((expense->type == DINNER && expense->get_amount() > 5000) ||
-                 (expense->type == BREAKFAST && expense->get_amount() > 1000))
-                    ? "X"
-                    : "";
 
             std::ostringstream oss;
             oss << std::fixed << std::setprecision(2) << name << "\t"
