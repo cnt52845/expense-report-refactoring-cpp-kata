@@ -19,6 +19,21 @@ public:
     int         amount;
 };
 
+class DinnerExpense : public Expense {
+public:
+    DinnerExpense(int amount) : Expense(DINNER, amount) {}
+};
+
+class BreakfastExpense : public Expense {
+public:
+    BreakfastExpense(int amount) : Expense(BREAKFAST, amount) {}
+};
+
+class LodgingExpense : public Expense {
+public:
+    LodgingExpense(int amount) : Expense(LODGING, amount) {}
+};
+
 class ExpenseReport {
 private:
     std::vector<Expense> expenses;
