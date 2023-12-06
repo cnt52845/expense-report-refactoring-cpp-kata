@@ -59,6 +59,7 @@ public:
 };
 
 class ExpenseReportNamer : public ExpenseNamer {
+public:
     std::string get_name(const std::shared_ptr<Expense>& expense) override
     {
         if (is_instance_of<DinnerExpense>(expense)) {
@@ -75,20 +76,6 @@ class ExpenseReportNamer : public ExpenseNamer {
 };
 
 class ExpenseReport {
-private:
-    std::vector<std::shared_ptr<Expense>> expenses;
-    double                                total      = 0;
-    double                                meal_total = 0;
-
-    void add_to_totals(const std::shared_ptr<Expense>& expense)
-    {
-        double subtotal = expense->get_amount() + expense->get_surcharge();
-        total += subtotal;
-        if (expense->is_meal()) {
-            meal_total += subtotal;
-        }
-    }
-
 public:
     void add_expense(const std::shared_ptr<Expense>& expense) { expenses.push_back(expense); }
 
@@ -104,14 +91,33 @@ public:
     double get_expenses_total() { return total; }
 
     double get_meal_expenses_total() { return meal_total; }
+
+private:
+    void add_to_totals(const std::shared_ptr<Expense>& expense)
+    {
+        double subtotal = expense->get_amount() + expense->get_surcharge();
+        total += subtotal;
+        if (expense->is_meal()) {
+            meal_total += subtotal;
+        }
+    }
+
+    std::vector<std::shared_ptr<Expense>> expenses;
+    double                                total      = 0;
+    double                                meal_total = 0;
 };
 
 class ExpenseReporter {
-private:
-    const std::shared_ptr<ExpenseReport> report;
-    std::shared_ptr<ExpenseNamer>        namer = std::make_shared<ExpenseReportNamer>();
-    ReportPrinter*                       printer;
+public:
+    ExpenseReporter(std::shared_ptr<ExpenseReport>& report) : report(report) {}
+    void print_report(ReportPrinter& printer)
+    {
+        this->printer = &printer;
+        report->total_up_expenses();
+        print_expenses_and_totals();
+    }
 
+private:
     void print_expenses_and_totals()
     {
         print_header();
@@ -158,12 +164,7 @@ private:
 
     double pennies_to_dollars(double pennies) { return pennies / 100.0; }
 
-public:
-    ExpenseReporter(std::shared_ptr<ExpenseReport>& report) : report(report) {}
-    void print_report(ReportPrinter& printer)
-    {
-        this->printer = &printer;
-        report->total_up_expenses();
-        print_expenses_and_totals();
-    }
+    const std::shared_ptr<ExpenseReport> report;
+    std::shared_ptr<ExpenseNamer>        namer = std::make_shared<ExpenseReportNamer>();
+    ReportPrinter*                       printer;
 };
