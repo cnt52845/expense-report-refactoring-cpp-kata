@@ -42,7 +42,7 @@ TEST_F(ExpenseReportTest, print_empty)
 
 TEST_F(ExpenseReportTest, print_one_dinner)
 {
-    report->add_expense(Expense(ExpenseType::DINNER, 3000));
+    report->add_expense(std::make_shared<DinnerExpense>(3000));
     report->print_report(*printer);
 
     std::string expected_output = "Expense Report\n"
@@ -56,8 +56,8 @@ TEST_F(ExpenseReportTest, print_one_dinner)
 
 TEST_F(ExpenseReportTest, print_two_meals_and_dinner_over)
 {
-    report->add_expense(Expense(ExpenseType::DINNER, 6000));
-    report->add_expense(Expense(ExpenseType::BREAKFAST, 1000));
+    report->add_expense(std::make_shared<DinnerExpense>(6000));
+    report->add_expense(std::make_shared<BreakfastExpense>(1000));
     report->print_report(*printer);
 
     std::string expected_output = "Expense Report\n"
@@ -72,9 +72,9 @@ TEST_F(ExpenseReportTest, print_two_meals_and_dinner_over)
 
 TEST_F(ExpenseReportTest, print_mix_and_dinner_over)
 {
-    report->add_expense(Expense(ExpenseType::DINNER, 5000));
-    report->add_expense(Expense(ExpenseType::BREAKFAST, 2000));
-    report->add_expense(Expense(ExpenseType::LODGING, 3000));
+    report->add_expense(std::make_shared<DinnerExpense>(5000));
+    report->add_expense(std::make_shared<BreakfastExpense>(2000));
+    report->add_expense(std::make_shared<LodgingExpense>(3000));
     report->print_report(*printer);
 
     std::string expected_output = "Expense Report\n"
@@ -85,5 +85,61 @@ TEST_F(ExpenseReportTest, print_mix_and_dinner_over)
                                   "--------------\n"
                                   "Meal Total: 76.00\n"
                                   "Total: 110.50\n";
+    EXPECT_EQ(printer->get_text(), expected_output);
+}
+
+TEST_F(ExpenseReportTest, print_one_transportation)
+{
+    report->add_expense(std::make_shared<TransportationExpense>(1000));
+    report->print_report(*printer);
+
+    std::string expected_output = "Expense Report\n"
+                                  "--------------\n"
+                                  "Transportation\t10.00\t\n"
+                                  "--------------\n"
+                                  "Meal Total: 0.00\n"
+                                  "Total: 10.50\n";
+    EXPECT_EQ(printer->get_text(), expected_output);
+}
+
+TEST_F(ExpenseReportTest, print_one_Supplies)
+{
+    report->add_expense(std::make_shared<SuppliesExpense>(5000));
+    report->print_report(*printer);
+
+    std::string expected_output = "Expense Report\n"
+                                  "--------------\n"
+                                  "Supplies\t50.00\t\n"
+                                  "--------------\n"
+                                  "Meal Total: 0.00\n"
+                                  "Total: 50.00\n";
+    EXPECT_EQ(printer->get_text(), expected_output);
+}
+
+TEST_F(ExpenseReportTest, print_one_dinner_on_weekend)
+{
+    report->add_expense(std::make_shared<DinnerExpense>(1000, "2023-12-02"));
+    report->print_report(*printer);
+
+    std::string expected_output = "Expense Report\n"
+                                  "--------------\n"
+                                  "Dinner\t10.00\t\n"
+                                  "--------------\n"
+                                  "Meal Total: 11.50\n"
+                                  "Total: 11.50\n";
+    EXPECT_EQ(printer->get_text(), expected_output);
+}
+
+TEST_F(ExpenseReportTest, print_one_breakfast_on_weekend)
+{
+    report->add_expense(std::make_shared<BreakfastExpense>(1000, "2023-12-02"));
+    report->print_report(*printer);
+
+    std::string expected_output = "Expense Report\n"
+                                  "--------------\n"
+                                  "Breakfast\t10.00\t\n"
+                                  "--------------\n"
+                                  "Meal Total: 11.00\n"
+                                  "Total: 11.00\n";
     EXPECT_EQ(printer->get_text(), expected_output);
 }
